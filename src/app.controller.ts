@@ -24,7 +24,7 @@ export class AppController {
     FileInterceptor('file', {
       storage: multerS3({
         s3: new S3Client({
-          region: process.env., // 리전 정보
+          region: process.env.AWS_DEFAULT_REGION, // 리전 정보
           credentials: {
             accessKeyId: process.env.AWS_ACCESS_KEY_ID, // 버킷 액세스 키
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // 버킷 비밀 액세스 키
