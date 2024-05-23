@@ -30,7 +30,7 @@ export class AppController {
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // 버킷 비밀 액세스 키
           },
         }),
-        bucket: '', // 버킷명
+        bucket: 'minju25kim-bucket', // 버킷명
         metadata: function (req, file, cb) {
           cb(null, { fieldName: file.fieldname });
         },
