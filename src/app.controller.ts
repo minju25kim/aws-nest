@@ -1,5 +1,14 @@
-import { Controller, Get, HttpCode, HttpStatus } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AppService } from './app.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as multerS3 from 'multer-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 
 @Controller()
 export class AppController {
@@ -10,9 +19,29 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('health')
-  @HttpCode(HttpStatus.OK) // 이 데코레이터는 응답 코드를 200으로 설정합니다.
-  getHealth() {
-    return { message: 'This is a successful response!' };
+  @Post('profile')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: multerS3({
+        s3: new S3Client({
+          region: process.env., // 리전 정보
+          credentials: {
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID, // 버킷 액세스 키
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // 버킷 비밀 액세스 키
+          },
+        }),
+        bucket: '', // 버킷명
+        metadata: function (req, file, cb) {
+          cb(null, { fieldName: file.fieldname });
+        },
+        key: function (req, file, cb) {
+          const filename = `${Date.now().toString()}-${file.originalname}`;
+          cb(null, filename);
+        },
+      }),
+    }),
+  )
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return file;
   }
 }
